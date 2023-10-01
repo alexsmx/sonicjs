@@ -7,7 +7,7 @@ import { drizzle } from "drizzle-orm/d1";
 const example = new Hono();
 
 example.get("/", (ctx) => {
-  return ctx.text("Hello SonicJs!");
+  return ctx.text("Hello World!");
 });
 
 example.get("/users", async (ctx) => {
