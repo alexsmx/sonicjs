@@ -23,6 +23,21 @@ up.get("/my-prompts", async (ctx) => {
   return ctx.json(data);
 });
 
+up.get("/:user_id/my-prompts", async (ctx) => {
+  var params = qs.parse(ctx.req.query());
+  console.log("params", params);
+  const user_id = ctx.req.param('user_id');
+  params["filters"] ={ userId: user_id};
+  const data = await getRecords(
+    ctx.env.D1DATA,
+    ctx.env.KVDATA,
+    "user_prompt",
+    params,
+    ctx.req.url,
+    "d1"
+  );
+  return ctx.json(data);
+});
 
 up.get("/", async (ctx) => {
     var params = qs.parse(ctx.req.query());
