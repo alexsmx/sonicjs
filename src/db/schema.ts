@@ -5,6 +5,7 @@ import {
   blob,
   index,
   primaryKey,
+  real
 } from "drizzle-orm/sqlite-core";
 
 import { relations } from "drizzle-orm";
@@ -19,6 +20,28 @@ export const auditSchema = {
 /*
  **** TABLES ****
  */
+// prompts 
+
+export const userPromptsSchema = {
+  id: text("id").primaryKey(),
+  prompt_name: text("prompt_name"),
+  base_prompt: text("base_prompt"),
+  input_variables: text("input_variables"),
+  human_template: text("human_template"),
+  model:  text("model").$type<"gpt-3.5" | "gpt4">(),
+  memory_size: integer("memory_size"),
+  intro: text("intro"),
+  outro: text("outro"),
+  temperature: real("temperature"),
+  description: text("description"),
+  hidden:  integer('hidden', { mode: 'boolean' }),
+  userId: text("userId"),
+
+};
+export const userPromptTable = sqliteTable("user_prompt", {
+  ...userPromptsSchema,
+  ...auditSchema,
+});
 
 // users
 export const userSchema = {
@@ -97,10 +120,18 @@ export const categoriesToPostsTable = sqliteTable(
  **** TABLES RELATIONSHIPS ****
  */
 
-// users can have many posts and many comments
+// users can have many posts and many comments and many prompts
 export const usersRelations = relations(usersTable, ({ many }) => ({
   posts: many(postsTable),
   comments: many(commentsTable),
+  prompts: many(userPromptTable),
+}));
+// prompts can have one author (user)
+export const userPromptsRelations = relations(userPromptTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [userPromptTable.userId],
+    references: [usersTable.id],
+  }),
 }));
 
 // posts can have one author (user), many categories, many comments
@@ -157,4 +188,5 @@ export const apiConfig: ApiConfig[] = [
   { table: "categories", route: "categories" },
   { table: "comments", route: "comments" },
   { table: "categoriesToPosts", route: "categories-to-posts" },
+  { table: "user_prompt", route: "user_prompt" },
 ];

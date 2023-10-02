@@ -11,6 +11,8 @@ import {
   commentsTable,
   categoriesToPostsTable,
   categoriesToPostsSchema,
+  userPromptsSchema,
+  userPromptTable,
 } from "../../db/schema";
 import { DefaultLogger, LogWriter, eq } from "drizzle-orm";
 import { addToInMemoryCache, setCacheStatus } from "./cache";
@@ -23,6 +25,7 @@ export async function getAllContent(db) {
 
 export async function getD1DataByTable(db, table, params) {
   const sql = generateSelectSql(table, params);
+  console.log("sql", sql);
   const { results } = await db.prepare(sql).all();
 
   return results;
@@ -161,6 +164,9 @@ export function getSchemaFromTable(tableName) {
     case "categoriesToPosts":
       return categoriesToPostsSchema;
       break;
+    case "user_prompt":
+      return userPromptsSchema;
+      break;
   }
 }
 
@@ -182,11 +188,15 @@ export function getRepoFromTable(tableName) {
     case "categoriesToPosts":
       return categoriesToPostsTable;
       break;
+    case "user_prompt":
+      return userPromptTable;
+      break;
+
   }
 }
 
-export function whereClauseBuilder(params) {
-  // console.log("whereClauseBuilder", JSON.stringify(params.filters, null, 2));
+function whereClauseBuilder(params) {
+  console.log("whereClauseBuilder", JSON.stringify(params.filters, null, 2));
   let whereClause = "";
   const filters = params.filters;
 
@@ -194,18 +204,21 @@ export function whereClauseBuilder(params) {
     return whereClause;
   }
 
-  if (Array.isArray(filters)) {
-    filters.map((field) => {
-      console.log(field);
-    });
-  } else {
-    console.log("---filters----");
-    console.log(filters);
-    const field = Object.keys(filters)[0];
-    console.log(field);
+  // Iterate through the filter object and build WHERE clause
+  const filterConditions = [];
+  for (const column in filters) {
+    if (filters.hasOwnProperty(column)) {
+      const value = filters[column];
+      // Construct the condition for each column and value
+      filterConditions.push(`${column} = '${value}'`);
+    }
+  }
 
-    whereClause = `where ${field} = `;
+  // Combine the filter conditions with 'AND' operator
+  if (filterConditions.length > 0) {
+    whereClause = "WHERE " + filterConditions.join(" AND ");
   }
 
   return whereClause;
 }
+

@@ -2,12 +2,23 @@ import { Hono } from "hono";
 import { Bindings } from "../types/bindings";
 import { getD1DataByTable } from "../data/d1-data";
 import { getById } from "../data/kv-data";
+import { decode } from 'hono/jwt';
 
 const status = new Hono<{ Bindings: Bindings }>();
 
 status.get("/", async (ctx) => {
   console.log("status", Date());
   var status = {};
+  status.headers = ctx.req.headers;
+  //parse cookie
+  status.CF_Authorization = 'not set';
+  if (ctx.req.cookie("CF_Authorization")) {
+    const tokenToDecode = ctx.req.cookie("CF_Authorization");
+    const { header, payload } = decode(tokenToDecode)
+    status.CF_Authorization = payload;
+    status.CF_Authorization_header = header;
+  }
+
 
   status.webServer = "ok";
 

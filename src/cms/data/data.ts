@@ -70,12 +70,14 @@ export async function getRecord(
       return cachedData;
     }
   }
-
-  const kvData = await getRecordFromKvCache(kv, cacheKey);
-  if (source == "kv" || kvData) {
-    console.log("**** getting kv cache ****", kvData);
-    return kvData;
+  if (source == "fastest" || source == "kv") {
+    const kvData = await getRecordFromKvCache(kv, cacheKey);
+    if (source == "kv" || kvData) {
+      console.log("**** getting kv cache ****", kvData);
+      return kvData;
+    }
   }
+  
 
   const d1Data = await getD1ByTableAndId(d1, table, params.id);
 

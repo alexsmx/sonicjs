@@ -1,0 +1,1 @@
+ALTER TABLE user_prompt ADD `prompt_name` text;

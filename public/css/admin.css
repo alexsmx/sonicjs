@@ -3,7 +3,7 @@
 }
 
 html[data-bs-theme="dark"] a {
-  color: var(--bs-light) !important;
+  color: var(--bs-light) X!important;
   /* Attribute has this exact value */
 }
 
@@ -192,4 +192,8 @@ body {
   background: var(--bs-light);
   padding: 30px;
   border-radius: 8px;
+}
+
+#gridjs-td{
+  color: #000;
 }

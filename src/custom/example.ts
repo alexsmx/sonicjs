@@ -3,8 +3,10 @@ import qs from "qs";
 import { getRecords } from "../cms/data/data";
 import * as schema from "../db/schema";
 import { drizzle } from "drizzle-orm/d1";
-
+import {decodeJwtMiddleware} from "./cloudflare_access";
 const example = new Hono();
+
+example.use('*', decodeJwtMiddleware)
 
 example.get("/", (ctx) => {
   return ctx.text("Hello World!");
@@ -12,6 +14,7 @@ example.get("/", (ctx) => {
 
 example.get("/users", async (ctx) => {
   var params = qs.parse(ctx.req.query());
+  console.log("params", params);
   const data = await getRecords(
     ctx.env.D1DATA,
     ctx.env.KVDATA,
@@ -25,6 +28,7 @@ example.get("/users", async (ctx) => {
 
 example.post("/users", async (ctx) => {
   var params = qs.parse(ctx.req.query());
+  console.log("params", params);
   const data = await getRecords(
     ctx.env.D1DATA,
     ctx.env.KVDATA,
