@@ -8,7 +8,20 @@ import {decodeJwtMiddleware} from "./cloudflare_access";
 const up = new Hono();
 up.use('*', decodeJwtMiddleware)
 
-
+up.get("/my-prompts", async (ctx) => {
+  var params = qs.parse(ctx.req.query());
+  console.log("params", params);
+  params["filters"] = { userId: ctx.get("x-cf-email") };
+  const data = await getRecords(
+    ctx.env.D1DATA,
+    ctx.env.KVDATA,
+    "user_prompt",
+    params,
+    ctx.req.url,
+    "d1"
+  );
+  return ctx.json(data);
+});
 
 
 up.get("/", async (ctx) => {
